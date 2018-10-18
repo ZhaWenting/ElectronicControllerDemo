@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+	<dimen name="text_size1">15.5556sp</dimen>
+	<dimen name="text_size2">20.0000sp</dimen>
+	<dimen name="text_size3">27.7778sp</dimen>
+	<dimen name="text_size4">33.3333sp</dimen>
+	<dimen name="dimen1">5.5556dp</dimen>
+	<dimen name="dimen2">11.1111dp</dimen>
+	<dimen name="dimen3">16.6667dp</dimen>
+	<dimen name="dimen4">22.2222dp</dimen>
+	<dimen name="dimen5">33.3333dp</dimen>
+	<dimen name="dimen18">38.8889dp</dimen>
+	<dimen name="dimen6">44.4444dp</dimen>
+	<dimen name="dimen7">55.5556dp</dimen>
+	<dimen name="dimen8">66.6667dp</dimen>
+	<dimen name="dimen9">88.8889dp</dimen>
+	<dimen name="dimen19">100.0000dp</dimen>
+	<dimen name="dimen10">111.1111dp</dimen>
+	<dimen name="dimen11">133.3333dp</dimen>
+	<dimen name="dimen12">166.6667dp</dimen>
+	<dimen name="dimen13">222.2222dp</dimen>
+	<dimen name="dimen20">244.4444dp</dimen>
+	<dimen name="dimen14">277.7778dp</dimen>
+	<dimen name="dimen15">311.1111dp</dimen>
+	<dimen name="dimen16">333.3333dp</dimen>
+	<dimen name="dimen17">388.8889dp</dimen>
+	<dimen name="dimen21">300.0000dp</dimen>
+	<dimen name="dimen22">138.8889dp</dimen>
+	<dimen name="activity_horizontal_margin">17.7778dp</dimen>
+	<dimen name="activity_vertical_margin">17.7778dp</dimen>
+</resources>
