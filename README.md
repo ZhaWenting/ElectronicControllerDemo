@@ -5,7 +5,7 @@ Smart Home(ElectronicController)
 A demo that can control electronics from mobile device
 
 **1.Architecture**
-Use MVC to develop the architecture. Xml files cares for UI, bean files for model, activities and fragments act as controller.
+Use MVC to develop the architecture. Xml files for UI, bean files for model, activities and fragments act as controller.
 Create new class extends Appliaction to set basic configuration.
 Create BaseActivity and BaseFragment to abstract some common methods.
 
