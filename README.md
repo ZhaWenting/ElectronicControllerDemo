@@ -21,3 +21,6 @@ The last known state will shown when app start again.
 
 4.Performance 
 Use retrofit to improve the interact with server.
+
+10/19/2018
+Add a music player in the kitchen
