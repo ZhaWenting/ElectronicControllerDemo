@@ -51,7 +51,7 @@ public class MainActivity extends BaseActivity {
     protected void initView() {
         initPermission();
         fragmentManager = getSupportFragmentManager();
-//        AssetFile.copyFilesFromAssets(getBaseContext(), "secret_garden.mp3", Constants.DIR_PATH+"secret_garden.mp3");
+        AssetFile.copyFilesFromAssets(getBaseContext(), "secret_garden.mp3", Constants.DIR_PATH);
         bedroom.performClick();
 
     }

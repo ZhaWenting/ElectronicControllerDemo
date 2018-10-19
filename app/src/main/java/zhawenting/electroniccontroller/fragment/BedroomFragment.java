@@ -12,8 +12,11 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import butterknife.BindView;
 import retrofit2.Call;
@@ -69,7 +72,7 @@ public class BedroomFragment extends BaseFragment implements View.OnTouchListene
 //            showShortToast(bedroom_light2);
             if (!TextUtils.isEmpty(bedroom_light2)) {
                 listItem.add(new FixtureBean("Light2", bedroom_light2));
-            }else {
+            } else {
                 listItem.add(new FixtureBean("Light2", "Off"));
             }
         }
@@ -78,7 +81,7 @@ public class BedroomFragment extends BaseFragment implements View.OnTouchListene
             String bedroom_ac = systemParams.getString("Bedroom_AC", "");
             if (!TextUtils.isEmpty(bedroom_ac)) {
                 listItem.add(new FixtureBean("AC", bedroom_ac));
-            }else {
+            } else {
                 listItem.add(new FixtureBean("AC", "Off"));
             }
         }
@@ -87,7 +90,7 @@ public class BedroomFragment extends BaseFragment implements View.OnTouchListene
         weatherBeanCall = weatherService.getWeather();
 
         updateTemp();
-        weatherHandler.postDelayed(weatherRunnable, FREQUENT);
+        weatherTimer.schedule(weatherTask,FREQUENT,FREQUENT);
     }
 
     private void updateTemp() {
@@ -95,10 +98,10 @@ public class BedroomFragment extends BaseFragment implements View.OnTouchListene
             @Override
             public void onResponse(Call<WeatherBean> call, Response<WeatherBean> response) {
                 double temperature = response.body().getConsolidated_weather().get(0).getThe_temp();
-                ( listItem.get(0)).setFixtureState(temperature + " ℃");
+                (listItem.get(0)).setFixtureState(temperature + " ℃");
                 listAdapter.notifyItemChanged(0);
                 if (temperature > 25) {
-                    ( listItem.get(3)).setFixtureState("Off");
+                    (listItem.get(3)).setFixtureState("Off");
                     listAdapter.notifyItemChanged(3);
                 } else if (temperature < 25) {
                     (listItem.get(3)).setFixtureState("On");
@@ -130,26 +133,15 @@ public class BedroomFragment extends BaseFragment implements View.OnTouchListene
         return (R.layout.fragment_bedroom);
     }
 
-    Handler fragmentHandler = new Handler();
-    Runnable fragmentRunnable = new Runnable() {
+    Timer weatherTimer = new Timer();
+    TimerTask weatherTask = new TimerTask() {
         @Override
         public void run() {
             if (!onUserTouch)
-                fragmentHandler.postDelayed(fragmentRunnable, FREQUENT);
-
-        }
-    };
-
-    Handler weatherHandler = new Handler();
-    Runnable weatherRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (!onUserTouch) {
                 updateTemp();
-                weatherHandler.postDelayed(weatherRunnable, FREQUENT);
-            }
         }
     };
+
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
@@ -184,9 +176,13 @@ public class BedroomFragment extends BaseFragment implements View.OnTouchListene
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (fragmentHandler != null)
-            fragmentHandler.removeCallbacks(fragmentRunnable);
-        if (weatherHandler != null)
-            weatherHandler.removeCallbacks(weatherRunnable);
+        if (weatherTask != null) {
+            weatherTask.cancel();
+            weatherTask = null;
+        }
+        if (weatherTimer != null) {
+            weatherTimer.cancel();
+            weatherTimer = null;
+        }
     }
 }

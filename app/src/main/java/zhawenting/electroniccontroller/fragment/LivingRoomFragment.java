@@ -120,14 +120,13 @@ public class LivingRoomFragment extends BaseFragment implements FixtureAdapter.I
 
     @Override
     public void fixutureAdapterCallback(int type,int position) {
-        switch (type){
-            case 0:
-                lightSwitch(true);
-                break;
+        switch (position){
             case 1:
-                lightSwitch(false);
+                if(type==0)
+                    lightSwitch(true);
+                else
+                    lightSwitch(false);
                 break;
-
         }
     }
 }

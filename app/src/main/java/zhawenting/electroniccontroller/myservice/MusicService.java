@@ -30,7 +30,7 @@ public class MusicService extends Service {
     }
     public void initMediaPlayer() {
         try {
-            String file_path = Constants.DIR_PATH + "secret_garden.mp3/secret_garden.mp3";
+            String file_path = Constants.DIR_PATH + "secret_garden.mp3";
             mediaPlayer.setDataSource(file_path);
             mediaPlayer.prepare();
             mediaPlayer.setLooping(true);
