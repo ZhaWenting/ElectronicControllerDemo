@@ -24,8 +24,8 @@ import zhawenting.electroniccontroller.adapter.FixtureAdapter;
 import zhawenting.electroniccontroller.base.BaseFragment;
 import zhawenting.electroniccontroller.bean.FixtureBean;
 import zhawenting.electroniccontroller.bean.WeatherBean;
-import zhawenting.electroniccontroller.webservice.BedroomFixtureApi;
-import zhawenting.electroniccontroller.webservice.WeatherApi;
+import zhawenting.electroniccontroller.myservice.BedroomFixtureApi;
+import zhawenting.electroniccontroller.myservice.WeatherApi;
 
 /**
  * A simple {@link Fragment} subclass.

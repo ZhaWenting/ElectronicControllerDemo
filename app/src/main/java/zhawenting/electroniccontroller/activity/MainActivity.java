@@ -15,11 +15,12 @@ import butterknife.OnClick;
 import zhawenting.electroniccontroller.R;
 import zhawenting.electroniccontroller.base.ActivityCollector;
 import zhawenting.electroniccontroller.base.BaseActivity;
+import zhawenting.electroniccontroller.config.Constants;
 import zhawenting.electroniccontroller.fragment.BedroomFragment;
 import zhawenting.electroniccontroller.fragment.KitchenFragment;
 import zhawenting.electroniccontroller.fragment.LivingRoomFragment;
+import zhawenting.electroniccontroller.util.AssetFile;
 import zhawenting.electroniccontroller.util.CheckPermissionUtils;
-import zhawenting.electroniccontroller.webservice.BedroomFixtureApi;
 
 public class MainActivity extends BaseActivity {
 
@@ -50,26 +51,27 @@ public class MainActivity extends BaseActivity {
     protected void initView() {
         initPermission();
         fragmentManager = getSupportFragmentManager();
+//        AssetFile.copyFilesFromAssets(getBaseContext(), "secret_garden.mp3", Constants.DIR_PATH+"secret_garden.mp3");
         bedroom.performClick();
 
     }
 
-    private long exitTime = 0;
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (bedroomFragment instanceof BedroomFragment) {
-            if ((System.currentTimeMillis() - exitTime) > 1000) {
-                showShortToast("Click twice to exit");
-                exitTime = System.currentTimeMillis();
-            } else {
-                bedroomFragment.onKeyDown(keyCode, event);
-                ActivityCollector.finishAll();
-                System.exit(0);
-            }
-            return true;
-        }
-        return false;
-    }
+//    private long exitTime = 0;
+//    @Override
+//    public boolean onKeyDown(int keyCode, KeyEvent event) {
+//        if (bedroomFragment instanceof BedroomFragment) {
+//            if ((System.currentTimeMillis() - exitTime) > 1000) {
+//                showShortToast("Click twice to exit");
+//                exitTime = System.currentTimeMillis();
+//            } else {
+//                bedroomFragment.onKeyDown(keyCode, event);
+//                ActivityCollector.finishAll();
+//                System.exit(0);
+//            }
+//            return true;
+//        }
+//        return false;
+//    }
 
     /**
      * 初始化权限事件

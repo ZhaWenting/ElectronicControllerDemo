@@ -44,24 +44,24 @@ public class FixtureAdapter extends RecyclerView.Adapter<FixtureAdapter.MyHolder
         FixtureBean deviceBean = fixtureBeans.get(position);
         holder.fixtureName.setText(deviceBean.getFixtureName());
         holder.fixtureState.setText(deviceBean.getFixtureState());
-        if(position!=0) {
-            if ("On".equals(holder.fixtureState.getText())) {
-                holder.fixtureState.setText("Off");
-            }
-            else {
-                holder.fixtureState.setText("On");
-            }
-        }else {
+        if (position == 0) {
             holder.button.setVisibility(View.INVISIBLE);
+        }
+
+        if ("On".equals(holder.fixtureState.getText())) {
+            if ("Music".equals(holder.fixtureName)) {
+                callback.fixutureAdapterCallback(1);
+            }
         }
 
         holder.button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if ("On".equals(holder.fixtureState.getText())) {
+                    callback.fixutureAdapterCallback(0);
                     holder.fixtureState.setText("Off");
-                }
-                else {
+                } else {
+                    callback.fixutureAdapterCallback(1);
                     holder.fixtureState.setText("On");
                 }
             }
@@ -87,5 +87,16 @@ public class FixtureAdapter extends RecyclerView.Adapter<FixtureAdapter.MyHolder
             fixtureState = itemView.findViewById(R.id.fixture_state);
             button = itemView.findViewById(R.id.button);
         }
+    }
+
+
+    private ICallback callback;
+
+    public void setListener(ICallback callback) {
+        this.callback = callback;
+    }
+
+    public interface ICallback {
+        void fixutureAdapterCallback(int type);
     }
 }
