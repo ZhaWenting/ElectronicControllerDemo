@@ -19,8 +19,7 @@ Using handler to start a request every 5 seconds so that the data will stay fres
 
 **3.Persistence**
 Persist data when user click the button Exit on the top of the page.
-It also works when user click the back key twice to exit the app.
-The last known state will shown when app start again.
+The last known state shows when app start again.
 
 **4.Performance**
 Use retrofit to improve the interact with server.
