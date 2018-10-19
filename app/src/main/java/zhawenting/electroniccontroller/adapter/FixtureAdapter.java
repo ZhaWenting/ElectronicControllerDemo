@@ -40,7 +40,7 @@ public class FixtureAdapter extends RecyclerView.Adapter<FixtureAdapter.MyHolder
     }
 
     @Override
-    public void onBindViewHolder(final MyHolder holder, int position) {
+    public void onBindViewHolder(final MyHolder holder, final int position) {
         FixtureBean deviceBean = fixtureBeans.get(position);
         holder.fixtureName.setText(deviceBean.getFixtureName());
         holder.fixtureState.setText(deviceBean.getFixtureState());
@@ -50,7 +50,7 @@ public class FixtureAdapter extends RecyclerView.Adapter<FixtureAdapter.MyHolder
 
         if ("On".equals(holder.fixtureState.getText())) {
             if ("Music".equals(holder.fixtureName)) {
-                callback.fixutureAdapterCallback(1);
+                callback.fixutureAdapterCallback(1,position);
             }
         }
 
@@ -58,10 +58,10 @@ public class FixtureAdapter extends RecyclerView.Adapter<FixtureAdapter.MyHolder
             @Override
             public void onClick(View v) {
                 if ("On".equals(holder.fixtureState.getText())) {
-                    callback.fixutureAdapterCallback(0);
+                    callback.fixutureAdapterCallback(0,position);
                     holder.fixtureState.setText("Off");
                 } else {
-                    callback.fixutureAdapterCallback(1);
+                    callback.fixutureAdapterCallback(1,position);
                     holder.fixtureState.setText("On");
                 }
             }
@@ -97,6 +97,6 @@ public class FixtureAdapter extends RecyclerView.Adapter<FixtureAdapter.MyHolder
     }
 
     public interface ICallback {
-        void fixutureAdapterCallback(int type);
+        void fixutureAdapterCallback(int type,int position);
     }
 }

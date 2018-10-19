@@ -76,7 +76,7 @@ public class KitchenFragment extends BaseFragment implements FixtureAdapter.ICal
     }
 
     @Override
-    public void fixutureAdapterCallback(int type) {
+    public void fixutureAdapterCallback(int type,int position) {
         switch (type) {
             case 0:
                 showLongToast("Music off");

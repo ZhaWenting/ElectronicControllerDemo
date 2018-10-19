@@ -43,6 +43,7 @@ public class LivingRoomFragment extends BaseFragment implements FixtureAdapter.I
 
     @Override
     protected void iniData() {
+        context = getActivity();
         listItem = new ArrayList();
         listItem.add(new FixtureBean("Temperature", "Loading..."));
         listItem.add(new FixtureBean("Light", "Off"));
@@ -60,7 +61,7 @@ public class LivingRoomFragment extends BaseFragment implements FixtureAdapter.I
 
     @Override
     protected void iniView() {
-        context = getActivity();
+
         listAdapter = new FixtureAdapter(context, listItem);
         listAdapter.setListener(this);
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
@@ -118,13 +119,13 @@ public class LivingRoomFragment extends BaseFragment implements FixtureAdapter.I
     }
 
     @Override
-    public void fixutureAdapterCallback(int type) {
+    public void fixutureAdapterCallback(int type,int position) {
         switch (type){
             case 0:
-                lightSwitch(false);
+                lightSwitch(true);
                 break;
             case 1:
-                lightSwitch(true);
+                lightSwitch(false);
                 break;
 
         }
