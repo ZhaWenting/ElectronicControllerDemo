@@ -1,23 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tl="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/exit"
-        android:background="@drawable/button_rect"
-        android:text="@string/Exit"
-        android:layout_gravity="right"
-        android:gravity="center"
-        android:layout_width="@dimen/dimen9"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
-
     <FrameLayout
         android:background="@color/white"
-        android:id="@+id/vp_content"
+        android:id="@+id/fl_change"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="8">
@@ -28,52 +19,19 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"></View>
 
-    <RadioGroup
-        android:id="@+id/rg_tab"
+    <com.flyco.tablayout.CommonTabLayout
+        android:id="@+id/tablayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_gravity="bottom"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <RadioButton
-            android:gravity="center"
-            android:button="@null"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:id="@+id/living_room"
-            android:background="@drawable/main_tab_background_selector"
-            android:textColor="@drawable/main_text_selector"
-            android:text="@string/LivingRoom" />
-
-        <RadioButton
-            android:gravity="center"
-            android:button="@null"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:id="@+id/bedroom"
-            android:background="@drawable/main_tab_background_selector"
-            android:textColor="@drawable/main_text_selector"
-            android:text="@string/Bedroom" />
-
-        <RadioButton
-            android:gravity="center"
-            android:button="@null"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:id="@+id/kitchen"
-            android:background="@drawable/main_tab_background_selector"
-            android:textColor="@drawable/main_text_selector"
-            android:text="@string/Kitchen" />
-
-
-    </RadioGroup>
-
-
+        android:background="#6D8FB0"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        tl:tl_iconVisible="false"
+        tl:tl_indicator_margin_left="5dp"
+        tl:tl_indicator_margin_right="5dp"
+        tl:tl_indicator_style="BLOCK"
+        tl:tl_textsize="14sp"/>
 
 
 </LinearLayout>

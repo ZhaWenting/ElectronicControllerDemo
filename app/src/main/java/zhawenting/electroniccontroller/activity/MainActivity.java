@@ -1,26 +1,40 @@
 package zhawenting.electroniccontroller.activity;
 
+import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
+import com.flyco.tablayout.CommonTabLayout;
+import com.flyco.tablayout.listener.CustomTabEntity;
+
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import butterknife.BindView;
-import butterknife.OnClick;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import zhawenting.electroniccontroller.R;
 import zhawenting.electroniccontroller.base.ActivityCollector;
 import zhawenting.electroniccontroller.base.BaseActivity;
 import zhawenting.electroniccontroller.config.Constants;
+import zhawenting.electroniccontroller.entity.TabEntity;
+import zhawenting.electroniccontroller.entity.WeatherEntity;
 import zhawenting.electroniccontroller.fragment.BedroomFragment;
 import zhawenting.electroniccontroller.fragment.KitchenFragment;
 import zhawenting.electroniccontroller.fragment.LivingRoomFragment;
+import zhawenting.electroniccontroller.myservice.BedroomFixtureApi;
+import zhawenting.electroniccontroller.myservice.WeatherApi;
 import zhawenting.electroniccontroller.util.AssetFile;
 import zhawenting.electroniccontroller.util.CheckPermissionUtils;
+import zhawenting.electroniccontroller.util.ViewFindUtils;
 
 public class MainActivity extends BaseActivity {
 
@@ -28,19 +42,22 @@ public class MainActivity extends BaseActivity {
     private KitchenFragment kitchenFragment;
     private LivingRoomFragment livingroomFragment;
 
-    @BindView(R.id.vp_content)
-    FrameLayout vpContent;
-    @BindView(R.id.living_room)
-    RadioButton livingRoom;
-    @BindView(R.id.bedroom)
-    RadioButton bedroom;
-    @BindView(R.id.kitchen)
-    RadioButton kitchen;
-    @BindView(R.id.rg_tab)
-    RadioGroup rgTab;
+    private static final int FREQUENT = 5000;
 
-    private FragmentManager fragmentManager;
-    private FragmentTransaction transaction;
+    private ArrayList<Fragment> mFragments = new ArrayList<>();
+    private View mDecorView;
+    private String[] mTitles;
+    private int[] mIconUnselectIds;
+    private int[] mIconSelectIds;
+    private ArrayList<CustomTabEntity> mTabEntities = new ArrayList<>();
+    private CommonTabLayout mTabLayout;
+
+    BedroomFixtureApi service;
+    Call<WeatherEntity> weatherBeanCall;
+    WeatherApi weatherService;
+
+
+    boolean onUserTouch = false;
 
     @Override
     public int getLayoutResID() {
@@ -50,115 +67,130 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void initView() {
         initPermission();
-        fragmentManager = getSupportFragmentManager();
-        AssetFile.copyFilesFromAssets(getBaseContext(), "secret_garden.mp3", Constants.DIR_PATH);
-        bedroom.performClick();
+        AssetFile.copyFilesFromAssets(getBaseContext(), "secret_garden.mp3", Environment.getExternalStorageDirectory().getAbsolutePath()+"/");
+
+        mTitles = new String[]{"Bedroom","Living Room","Kitchen"};
+        mIconUnselectIds = new int[mTitles.length];
+        mIconSelectIds = new int[mTitles.length];
+
+        for (int i = 0; i < mTitles.length; i++) {
+            mTabEntities.add(new TabEntity(mTitles[i], mIconSelectIds[i], mIconUnselectIds[i]));
+        }
+
+        mDecorView = getWindow().getDecorView();
+        mTabLayout = ViewFindUtils.find(mDecorView, R.id.tablayout);
+
+        for (int i = 0; i < 3; i++) {
+            mIconSelectIds[i] = R.mipmap.ic_launcher;
+            mIconUnselectIds[i] = R.mipmap.ic_launcher;
+            switch (mTitles[i]){
+                case "Bedroom":
+                    bedroomFragment = new BedroomFragment();
+                    mFragments.add(bedroomFragment);
+                    break;
+                case "Living Room":
+                    livingroomFragment = new LivingRoomFragment();
+                    mFragments.add(livingroomFragment);
+                    break;
+                case "Kitchen":
+                    kitchenFragment = new KitchenFragment();
+                    mFragments.add(kitchenFragment);
+                    break;
+            }
+        }
+
+        mTabLayout.setTabData(mTabEntities,this, R.id.fl_change, mFragments);
+        mTabLayout.setCurrentTab(0);
+
+        weatherService = retrofit2.create(WeatherApi.class);
+        weatherBeanCall = weatherService.getWeather();
+        updateTemp();
+        weatherTimer.schedule(weatherTask,FREQUENT,FREQUENT);
 
     }
 
-//    private long exitTime = 0;
-//    @Override
-//    public boolean onKeyDown(int keyCode, KeyEvent event) {
-//        if (bedroomFragment instanceof BedroomFragment) {
-//            if ((System.currentTimeMillis() - exitTime) > 1000) {
-//                showShortToast("Click twice to exit");
-//                exitTime = System.currentTimeMillis();
-//            } else {
-//                bedroomFragment.onKeyDown(keyCode, event);
-//                ActivityCollector.finishAll();
-//                System.exit(0);
-//            }
-//            return true;
-//        }
-//        return false;
-//    }
+    Timer weatherTimer = new Timer();
+    TimerTask weatherTask = new TimerTask() {
+        @Override
+        public void run() {
+            if (!onUserTouch)
+                updateTemp();
+        }
+    };
 
-    /**
-     * 初始化权限事件
-     */
+    private void updateTemp() {
+        weatherBeanCall.clone().enqueue(new Callback<WeatherEntity>() {
+            @Override
+            public void onResponse(Call<WeatherEntity> call, Response<WeatherEntity> response) {
+                double temperature = response.body().getConsolidated_weather().get(0).getThe_temp();
+                if(bedroomFragment.isVisible())
+                    bedroomFragment.setTemperature((int)temperature);
+                if(kitchenFragment.isVisible())
+                    kitchenFragment.setTemperature((int)temperature);
+                if(livingroomFragment.isVisible())
+                    livingroomFragment.setTemperature((int)temperature);
+            }
+
+            @Override
+            public void onFailure(Call<WeatherEntity> call, Throwable t) {
+                showShortToast(getString(R.string.NetworkError));
+            }
+        });
+    }
+
+
+    private long exitTime = 0;
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (bedroomFragment instanceof BedroomFragment) {
+            if ((System.currentTimeMillis() - exitTime) > 1000) {
+                showShortToast("Click twice to exit");
+                exitTime = System.currentTimeMillis();
+            } else {
+                bedroomFragment.onKeyDown(keyCode, event);
+                ActivityCollector.finishAll();
+                System.exit(0);
+            }
+            return true;
+        }
+        return false;
+    }
+
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                onUserTouch = true;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                onUserTouch = true;
+                break;
+            case MotionEvent.ACTION_UP:
+                onUserTouch = false;
+                break;
+        }
+        return true;
+    }
+
+
     private void initPermission() {
-        //检查权限
         String[] permissions = CheckPermissionUtils.checkPermission(this);
-        if (permissions.length == 0) {
-            //权限都申请了
-            //是否登录
-        } else {
-            //申请权限
+        if (permissions.length != 0) {
             ActivityCompat.requestPermissions(this, permissions, 100);
         }
     }
 
-    @OnClick({R.id.living_room, R.id.bedroom, R.id.kitchen,R.id.exit})
-    public void onViewClicked(View view) {
-        switch (view.getId()) {
-            case R.id.living_room:
-                setTabSelection(0);
-                break;
-            case R.id.bedroom:
-                setTabSelection(1);
-                break;
-            case R.id.kitchen:
-                setTabSelection(2);
-                break;
-            case R.id.exit:
-                if (bedroomFragment instanceof BedroomFragment)
-                    bedroomFragment.saveStates();
-                ActivityCollector.finishAll();
-                System.exit(0);
-                break;
-        }
-    }
-
-    private void setTabSelection(int index) {
-        transaction = fragmentManager.beginTransaction();
-        hideFragments(transaction);
-        switch (index) {
-            case 0:
-                if (livingroomFragment == null) {
-                    livingroomFragment = new LivingRoomFragment();
-                    transaction.add(R.id.vp_content, livingroomFragment);
-                } else
-                    transaction.show(livingroomFragment);
-                break;
-
-            case 1:
-                if (bedroomFragment == null) {
-                    bedroomFragment = new BedroomFragment();
-                    transaction.add(R.id.vp_content, bedroomFragment);
-                } else
-                    transaction.show(bedroomFragment);
-                break;
-
-            case 2:
-                if (kitchenFragment == null) {
-                    kitchenFragment = new KitchenFragment();
-                    transaction.add(R.id.vp_content, kitchenFragment);
-                } else
-                    transaction.show(kitchenFragment);
-                break;
-        }
-        transaction.commit();
-    }
-
-    private void hideFragments(FragmentTransaction transaction) {
-        if (kitchenFragment != null)
-            transaction.hide(kitchenFragment);
-        if (bedroomFragment != null)
-            transaction.hide(bedroomFragment);
-        if (livingroomFragment != null)
-            transaction.hide(livingroomFragment);
-    }
-
     @Override
-    public void onAttachFragment(Fragment fragment) {
-        super.onAttachFragment(fragment);
-        if (kitchenFragment == null && fragment instanceof KitchenFragment) {
-            kitchenFragment = (KitchenFragment) fragment;
-        } else if (livingroomFragment == null && fragment instanceof LivingRoomFragment) {
-            livingroomFragment = (LivingRoomFragment) fragment;
-        } else if (bedroomFragment == null && fragment instanceof BedroomFragment) {
-            bedroomFragment = (BedroomFragment) fragment;
+    protected void onDestroy() {
+        super.onDestroy();
+        if (weatherTask != null) {
+            weatherTask.cancel();
+            weatherTask = null;
+        }
+        if (weatherTimer != null) {
+            weatherTimer.cancel();
+            weatherTimer = null;
         }
     }
-
 }

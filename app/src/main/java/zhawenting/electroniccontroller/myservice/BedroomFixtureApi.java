@@ -4,17 +4,17 @@ package zhawenting.electroniccontroller.myservice;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
-import zhawenting.electroniccontroller.bean.FixtureBean;
+import zhawenting.electroniccontroller.entity.FixtureEntity;
 
 public interface BedroomFixtureApi {
 
     @GET("/bedroom/light1")
-    Call<FixtureBean> getLight1State();
+    Call<FixtureEntity> getLight1State();
 
     @POST("/bedroom/light2")
-    Call<FixtureBean> getLight2State();
+    Call<FixtureEntity> getLight2State();
 
     @POST("/bedroom/ac")
-    Call<FixtureBean> getACState();
+    Call<FixtureEntity> getACState();
 
 }

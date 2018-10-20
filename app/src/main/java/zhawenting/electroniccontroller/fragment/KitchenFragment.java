@@ -1,20 +1,23 @@
 package zhawenting.electroniccontroller.fragment;
 
 
-import android.Manifest;
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.FeatureInfo;
 import android.content.pm.PackageManager;
+import android.hardware.Camera;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraManager;
+import android.os.Build;
 import android.os.IBinder;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.KeyEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,17 +26,15 @@ import butterknife.BindView;
 import zhawenting.electroniccontroller.R;
 import zhawenting.electroniccontroller.adapter.FixtureAdapter;
 import zhawenting.electroniccontroller.base.BaseFragment;
-import zhawenting.electroniccontroller.bean.FixtureBean;
-import zhawenting.electroniccontroller.config.Constants;
+import zhawenting.electroniccontroller.entity.FixtureEntity;
 import zhawenting.electroniccontroller.myservice.MusicService;
-import zhawenting.electroniccontroller.util.AssetFile;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class KitchenFragment extends BaseFragment implements FixtureAdapter.ICallback {
     FixtureAdapter listAdapter;
-    List<FixtureBean> listItem;
+    List<FixtureEntity> listItem;
     @BindView(R.id.recyclerview)
     RecyclerView recyclerView;
     Context context;
@@ -43,19 +44,29 @@ public class KitchenFragment extends BaseFragment implements FixtureAdapter.ICal
         // Required empty public constructor
     }
 
+    private CameraManager manager;
+    private Camera camera = null;
+
 
     @Override
     protected void iniData() {
         context = getActivity();
         listItem = new ArrayList();
-        listItem.add(new FixtureBean("Temperature", "Loading..."));
-        listItem.add(new FixtureBean("Light", "Off"));
-        listItem.add(new FixtureBean("Music", "Off"));
-        listItem.add(new FixtureBean("Slow Cooker", "Off"));
+        listItem.add(new FixtureEntity("Temperature", "Loading..."));
+        listItem.add(new FixtureEntity("Light", "Off"));
+        listItem.add(new FixtureEntity("Music", "Off"));
+        listItem.add(new FixtureEntity("Slow Cooker", "Off"));
 
         //prepare music
         bindServiceConnection();
         musicService = new MusicService();
+
+        manager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
+        try {
+            manager.getCameraIdList();
+        } catch (CameraAccessException e) {
+            Log.e("error", e.getMessage());
+        }
     }
 
     @Override
@@ -70,6 +81,11 @@ public class KitchenFragment extends BaseFragment implements FixtureAdapter.ICal
 
     }
 
+    public void setTemperature(int temperature) {
+        (listItem.get(0)).setFixtureState(temperature + " ℃");
+        listAdapter.notifyItemChanged(0);
+    }
+
     @Override
     public int getLayoutRes() {
         return (R.layout.fragment_kitchen);
@@ -78,6 +94,12 @@ public class KitchenFragment extends BaseFragment implements FixtureAdapter.ICal
     @Override
     public void fixutureAdapterCallback(int type, int position) {
         switch (position) {
+            case 1:
+                if (type == 0)
+                    lightSwitch(true);
+                else
+                    lightSwitch(false);
+                break;
             case 2:
                 if (type == 1)
                     musicService.play();
@@ -104,6 +126,48 @@ public class KitchenFragment extends BaseFragment implements FixtureAdapter.ICal
             musicService = null;
         }
     };
+
+
+    private void lightSwitch(final boolean lightStatus) {
+        if (lightStatus) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                try {
+                    manager.setTorchMode("0", false);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                if (camera != null) {
+                    camera.stopPreview();
+                    camera.release();
+                    camera = null;
+                }
+            }
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                try {
+                    manager.setTorchMode("0", true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                final PackageManager pm = context.getPackageManager();
+                final FeatureInfo[] features = pm.getSystemAvailableFeatures();
+                for (final FeatureInfo f : features) {
+                    if (PackageManager.FEATURE_CAMERA_FLASH.equals(f.name)) {
+                        if (null == camera) {
+                            camera = Camera.open();
+                        }
+                        final Camera.Parameters parameters = camera.getParameters();
+                        parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+                        camera.setParameters(parameters);
+                        camera.startPreview();
+                    }
+                }
+            }
+        }
+    }
+
 
     @Override
     public void onDestroy() {

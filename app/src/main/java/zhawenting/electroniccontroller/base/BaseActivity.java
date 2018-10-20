@@ -23,6 +23,7 @@ import zhawenting.electroniccontroller.util.LogUtil;
 public abstract class BaseActivity extends FragmentActivity {
 
     protected Retrofit retrofit;
+    protected  Retrofit retrofit2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,9 +34,15 @@ public abstract class BaseActivity extends FragmentActivity {
         //初始化缓存全局变量
         SystemParams.getInstance();
 
+
         //初始化网络请求对象
         retrofit = new Retrofit.Builder()
                 .baseUrl(Constants.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        retrofit2 = new Retrofit.Builder()
+                .baseUrl("https://www.metaweather.com/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 

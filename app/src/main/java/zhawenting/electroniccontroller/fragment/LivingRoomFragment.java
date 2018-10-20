@@ -21,7 +21,7 @@ import butterknife.BindView;
 import zhawenting.electroniccontroller.R;
 import zhawenting.electroniccontroller.adapter.FixtureAdapter;
 import zhawenting.electroniccontroller.base.BaseFragment;
-import zhawenting.electroniccontroller.bean.FixtureBean;
+import zhawenting.electroniccontroller.entity.FixtureEntity;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -29,7 +29,7 @@ import zhawenting.electroniccontroller.bean.FixtureBean;
 public class LivingRoomFragment extends BaseFragment implements FixtureAdapter.ICallback {
 
     FixtureAdapter listAdapter;
-    List<FixtureBean> listItem;
+    List<FixtureEntity> listItem;
     @BindView(R.id.recyclerview)
     RecyclerView recyclerView;
     Context context;
@@ -45,15 +45,13 @@ public class LivingRoomFragment extends BaseFragment implements FixtureAdapter.I
     protected void iniData() {
         context = getActivity();
         listItem = new ArrayList();
-        listItem.add(new FixtureBean("Temperature", "Loading..."));
-        listItem.add(new FixtureBean("Light", "Off"));
-        listItem.add(new FixtureBean("TV", "Off"));
+        listItem.add(new FixtureEntity("Temperature", "Loading..."));
+        listItem.add(new FixtureEntity("Light", "Off"));
+        listItem.add(new FixtureEntity("TV", "Off"));
 
         manager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
         try {
-            String[] camerList = manager.getCameraIdList();
-            for (String str : camerList) {
-            }
+            manager.getCameraIdList();
         } catch (CameraAccessException e) {
             Log.e("error", e.getMessage());
         }
@@ -70,6 +68,11 @@ public class LivingRoomFragment extends BaseFragment implements FixtureAdapter.I
         recyclerView.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
         recyclerView.setAdapter(listAdapter);
 
+    }
+
+    public void setTemperature(int temperature){
+        (listItem.get(0)).setFixtureState(temperature + " ℃");
+        listAdapter.notifyItemChanged(0);
     }
 
     @Override
@@ -119,10 +122,10 @@ public class LivingRoomFragment extends BaseFragment implements FixtureAdapter.I
     }
 
     @Override
-    public void fixutureAdapterCallback(int type,int position) {
-        switch (position){
+    public void fixutureAdapterCallback(int type, int position) {
+        switch (position) {
             case 1:
-                if(type==0)
+                if (type == 0)
                     lightSwitch(true);
                 else
                     lightSwitch(false);

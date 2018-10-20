@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/exit"
+        android:background="@drawable/button_rect"
+        android:text="@string/Exit"
+        android:layout_gravity="right"
+        android:gravity="center"
+        android:layout_width="@dimen/dimen9"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <FrameLayout
+        android:background="@color/white"
+        android:id="@+id/vp_content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="8">
+    </FrameLayout>
+
+    <View
+        android:background="@color/black_08"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"></View>
+
+    <RadioGroup
+        android:id="@+id/rg_tab"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_gravity="bottom"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:gravity="center"
+            android:button="@null"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/living_room"
+            android:background="@drawable/main_tab_background_selector"
+            android:textColor="@drawable/main_text_selector"
+            android:text="@string/LivingRoom" />
+
+        <RadioButton
+            android:gravity="center"
+            android:button="@null"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/bedroom"
+            android:background="@drawable/main_tab_background_selector"
+            android:textColor="@drawable/main_text_selector"
+            android:text="@string/Bedroom" />
+
+        <RadioButton
+            android:gravity="center"
+            android:button="@null"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/kitchen"
+            android:background="@drawable/main_tab_background_selector"
+            android:textColor="@drawable/main_text_selector"
+            android:text="@string/Kitchen" />
+
+
+    </RadioGroup>
+
+
+
+
+</LinearLayout>

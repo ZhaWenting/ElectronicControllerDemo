@@ -10,7 +10,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import zhawenting.electroniccontroller.R;
-import zhawenting.electroniccontroller.bean.FixtureBean;
+import zhawenting.electroniccontroller.entity.FixtureEntity;
 
 /**
  * description：
@@ -20,15 +20,15 @@ import zhawenting.electroniccontroller.bean.FixtureBean;
 public class FixtureAdapter extends RecyclerView.Adapter<FixtureAdapter.MyHolder> {
 
     Context context;
-    List<FixtureBean> fixtureBeans;
+    List<FixtureEntity> fixtureEntities;
 
-    public FixtureAdapter(Context context, List<FixtureBean> deviceBeans) {
+    public FixtureAdapter(Context context, List<FixtureEntity> deviceBeans) {
         this.context = context;
-        this.fixtureBeans = deviceBeans;
+        this.fixtureEntities = deviceBeans;
     }
 
-    public void update(List<FixtureBean> deviceBeans) {
-        this.fixtureBeans = deviceBeans;
+    public void update(List<FixtureEntity> deviceBeans) {
+        this.fixtureEntities = deviceBeans;
         notifyDataSetChanged();
     }
 
@@ -41,7 +41,7 @@ public class FixtureAdapter extends RecyclerView.Adapter<FixtureAdapter.MyHolder
 
     @Override
     public void onBindViewHolder(final MyHolder holder, final int position) {
-        FixtureBean deviceBean = fixtureBeans.get(position);
+        FixtureEntity deviceBean = fixtureEntities.get(position);
         holder.fixtureName.setText(deviceBean.getFixtureName());
         holder.fixtureState.setText(deviceBean.getFixtureState());
         if (position == 0) {
@@ -72,7 +72,7 @@ public class FixtureAdapter extends RecyclerView.Adapter<FixtureAdapter.MyHolder
 
     @Override
     public int getItemCount() {
-        return fixtureBeans.size();
+        return fixtureEntities.size();
     }
 
 

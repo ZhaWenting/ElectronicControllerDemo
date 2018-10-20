@@ -3,16 +3,21 @@ package zhawenting.electroniccontroller.fragment;
 
 import android.app.Fragment;
 import android.content.Context;
-import android.os.Handler;
+import android.content.pm.FeatureInfo;
+import android.content.pm.PackageManager;
+import android.hardware.Camera;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraManager;
+import android.os.Build;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -25,45 +30,43 @@ import retrofit2.Response;
 import zhawenting.electroniccontroller.R;
 import zhawenting.electroniccontroller.adapter.FixtureAdapter;
 import zhawenting.electroniccontroller.base.BaseFragment;
-import zhawenting.electroniccontroller.bean.FixtureBean;
-import zhawenting.electroniccontroller.bean.WeatherBean;
+import zhawenting.electroniccontroller.entity.FixtureEntity;
+import zhawenting.electroniccontroller.entity.WeatherEntity;
 import zhawenting.electroniccontroller.myservice.BedroomFixtureApi;
 import zhawenting.electroniccontroller.myservice.WeatherApi;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class BedroomFragment extends BaseFragment implements View.OnTouchListener {
+public class BedroomFragment extends BaseFragment implements FixtureAdapter.ICallback {
 
     FixtureAdapter listAdapter;
-    List<FixtureBean> listItem;
+    List<FixtureEntity> listItem;
     Context context;
     @BindView(R.id.recyclerview)
     RecyclerView recyclerView;
-    BedroomFixtureApi service;
-    Call<WeatherBean> weatherBeanCall;
-    WeatherApi weatherService;
 
-    boolean onUserTouch = false;
-    private static final int FREQUENT = 5000;
 
+    private CameraManager manager;
+    private Camera camera = null;
     public BedroomFragment() {
 
     }
 
     @Override
     protected void iniData() {
+        context = getActivity();
         listItem = new ArrayList();
-        listItem.add(new FixtureBean("Temperature", "Loading..."));
+        listItem.add(new FixtureEntity("Temperature", "Loading..."));
 
         // Show the last known state of the bedroom
         if (systemParams.getString("Bedroom_light1", "") != null) {
             String bedroom_light1 = systemParams.getString("Bedroom_light1", "");
 //            showShortToast(bedroom_light1);
             if (!TextUtils.isEmpty(bedroom_light1)) {
-                listItem.add(new FixtureBean("Light1", bedroom_light1));
+                listItem.add(new FixtureEntity("Light1", bedroom_light1));
             } else {
-                listItem.add(new FixtureBean("Light1", "Off"));
+                listItem.add(new FixtureEntity("Light1", "Off"));
             }
         }
 
@@ -71,55 +74,35 @@ public class BedroomFragment extends BaseFragment implements View.OnTouchListene
             String bedroom_light2 = systemParams.getString("Bedroom_light2", "");
 //            showShortToast(bedroom_light2);
             if (!TextUtils.isEmpty(bedroom_light2)) {
-                listItem.add(new FixtureBean("Light2", bedroom_light2));
+                listItem.add(new FixtureEntity("Light2", bedroom_light2));
             } else {
-                listItem.add(new FixtureBean("Light2", "Off"));
+                listItem.add(new FixtureEntity("Light2", "Off"));
             }
         }
 
         if (systemParams.getString("Bedroom_AC", "") != null) {
             String bedroom_ac = systemParams.getString("Bedroom_AC", "");
             if (!TextUtils.isEmpty(bedroom_ac)) {
-                listItem.add(new FixtureBean("AC", bedroom_ac));
+                listItem.add(new FixtureEntity("AC", bedroom_ac));
             } else {
-                listItem.add(new FixtureBean("AC", "Off"));
+                listItem.add(new FixtureEntity("AC", "Off"));
             }
         }
 
-        weatherService = retrofit2.create(WeatherApi.class);
-        weatherBeanCall = weatherService.getWeather();
-
-        updateTemp();
-        weatherTimer.schedule(weatherTask,FREQUENT,FREQUENT);
+        manager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
+        try {
+            manager.getCameraIdList();
+        } catch (CameraAccessException e) {
+            Log.e("error", e.getMessage());
+        }
     }
 
-    private void updateTemp() {
-        weatherBeanCall.clone().enqueue(new Callback<WeatherBean>() {
-            @Override
-            public void onResponse(Call<WeatherBean> call, Response<WeatherBean> response) {
-                double temperature = response.body().getConsolidated_weather().get(0).getThe_temp();
-                (listItem.get(0)).setFixtureState(temperature + " ℃");
-                listAdapter.notifyItemChanged(0);
-                if (temperature > 25) {
-                    (listItem.get(3)).setFixtureState("Off");
-                    listAdapter.notifyItemChanged(3);
-                } else if (temperature < 25) {
-                    (listItem.get(3)).setFixtureState("On");
-                    listAdapter.notifyItemChanged(3);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<WeatherBean> call, Throwable t) {
-                showShortToast(getString(R.string.NetworkError));
-            }
-        });
-    }
 
     @Override
     protected void iniView() {
-        context = getActivity();
+
         listAdapter = new FixtureAdapter(context, listItem);
+        listAdapter.setListener(this);
         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
@@ -127,37 +110,24 @@ public class BedroomFragment extends BaseFragment implements View.OnTouchListene
         recyclerView.setAdapter(listAdapter);
     }
 
+    public void setTemperature(int temperature){
+        (listItem.get(0)).setFixtureState(temperature + " ℃");
+        listAdapter.notifyItemChanged(0);
+        if (temperature > 25) {
+            (listItem.get(3)).setFixtureState("Off");
+            listAdapter.notifyItemChanged(3);
+        } else if (temperature < 25) {
+            (listItem.get(3)).setFixtureState("On");
+            listAdapter.notifyItemChanged(3);
+        }
+    }
 
     @Override
     public int getLayoutRes() {
         return (R.layout.fragment_bedroom);
     }
 
-    Timer weatherTimer = new Timer();
-    TimerTask weatherTask = new TimerTask() {
-        @Override
-        public void run() {
-            if (!onUserTouch)
-                updateTemp();
-        }
-    };
 
-
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                onUserTouch = true;
-                break;
-            case MotionEvent.ACTION_MOVE:
-                onUserTouch = true;
-                break;
-            case MotionEvent.ACTION_UP:
-                onUserTouch = false;
-                break;
-        }
-        return false;
-    }
 
     //Persist the data for bedroom
     public void onKeyDown(int keyCode, KeyEvent event) {
@@ -173,16 +143,57 @@ public class BedroomFragment extends BaseFragment implements View.OnTouchListene
         systemParams.setString("Bedroom_AC", listItem.get(3).getFixtureState());
     }
 
+
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (weatherTask != null) {
-            weatherTask.cancel();
-            weatherTask = null;
+    public void fixutureAdapterCallback(int type, int position) {
+        switch (position){
+            case 1:
+            case 2:
+                if(type==0)
+                    lightSwitch(true);
+                else
+                    lightSwitch(false);
+                break;
         }
-        if (weatherTimer != null) {
-            weatherTimer.cancel();
-            weatherTimer = null;
+    }
+
+    private void lightSwitch(final boolean lightStatus) {
+        if (lightStatus) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                try {
+                    manager.setTorchMode("0", false);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                if (camera != null) {
+                    camera.stopPreview();
+                    camera.release();
+                    camera = null;
+                }
+            }
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                try {
+                    manager.setTorchMode("0", true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                final PackageManager pm = context.getPackageManager();
+                final FeatureInfo[] features = pm.getSystemAvailableFeatures();
+                for (final FeatureInfo f : features) {
+                    if (PackageManager.FEATURE_CAMERA_FLASH.equals(f.name)) {
+                        if (null == camera) {
+                            camera = Camera.open();
+                        }
+                        final Camera.Parameters parameters = camera.getParameters();
+                        parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+                        camera.setParameters(parameters);
+                        camera.startPreview();
+                    }
+                }
+            }
         }
     }
 }
