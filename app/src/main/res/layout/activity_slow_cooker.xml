@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".activity.SlowCookerActivity">
+
+    <TextView
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/f9"
+        android:layout_weight="1"
+        android:layout_centerInParent="true"
+        android:text="@string/SlowCooker"
+        android:textColor="@color/font1"
+        android:textSize="@dimen/text_size3"
+        android:textStyle="bold" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/black_08"></View>
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_marginTop="@dimen/dimen2"
+        android:layout_marginBottom="@dimen/dimen2"
+        android:id="@+id/recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="8"
+        android:background="@color/white"></android.support.v7.widget.RecyclerView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/black_08"></View>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/tempTv"
+            android:gravity="center"
+            android:text="Temp: 100℃"
+            android:layout_width="0dp"
+            android:textSize="@dimen/text_size2"
+            android:layout_weight="1"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:textColor="@color/ff2"
+            android:gravity="center"
+            android:text="Start"
+            android:id="@+id/startTv"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+
+</LinearLayout>
