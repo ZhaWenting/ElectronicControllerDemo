@@ -26,9 +26,18 @@ The last known state will shown when app start again.
 Use retrofit to improve the interact with server.
 
 ### History
-10-20-2018
+#### 20-10-2018
 1. Use TimerTask and Timer instead of Handler and Runnable, that can avoid starting the network request frequently.
 2. Import FlycoTabLayout to improve the structure of the activity.
 3. Fix the bug: The Music player doesn't play music. It is caused by a wrong path.
 4. Fix the crash bug which is caused by an unimplemented listener in the adapter.
 5. Remove exit button and now we can doubleclick the back key to exit.
+
+#### 21-10-2018
+1. Stop requesting to server when app is move to the backend.
+2. As rooms' info are obtained from server, room pages should generate dynamically ,So I abstarct three fragments(bedroom,kitchen,Living room) into one fragment(FixtureFrgment). Check the updates in MainActivity.
+3. Persist all the local data using Sharedpreferences and gson, app show local data when restart.
+4. Open Vedio when TV is on.
+5. Add Menu and cooking timer, set the cooker on and check new features.
+
+
